@@ -74,7 +74,8 @@ A simple Java compiler implementation that handles lexical analysis, symbol tabl
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/JorgeSarricolea/java_compiler
+git clone https://github.com/DARKTOTEM2703/java_compiler_DARK
+
 ```
 
 2. Navigate to project directory:
