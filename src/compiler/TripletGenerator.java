@@ -110,40 +110,37 @@ public class TripletGenerator {
     
     private void processAssignment(String line) {
         String[] parts = line.split("=", 2);
-        
         if (parts.length != 2) return;
-        
+
         String target = parts[0].trim();
         String expression = parts[1].trim();
-        
-        // Expresión simple (un valor literal o una variable)
-        if (!expression.contains("+") && !expression.contains("-") && 
-            !expression.contains("*") && !expression.contains("/")) {
-            
-            // Crear variable temporal T1 para el valor
+
+        // Manejar expresiones aritméticas
+        if (expression.contains("+") || expression.contains("-") || 
+            expression.contains("*") || expression.contains("/")) {
+
+            // Descomponer la expresión en tokens
+            String[] tokens = expression.split("(?<=[-+*/])|(?=[-+*/])");
+            String tempVar = "T1";
+
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i].trim();
+
+                if (token.matches("\\d+") || token.matches("[a-zA-Z]\\w*")) {
+                    // Si es un operando, asignarlo a T1
+                    triploEntries.add(new TriploEntry(tempVar, token, "="));
+                } else if (token.matches("[+\\-*/]")) {
+                    // Si es un operador, combinar T1 con el siguiente operando
+                    String right = tokens[++i].trim();
+                    triploEntries.add(new TriploEntry(tempVar, right, token));
+                }
+            }
+
+            // Asignar el resultado final al objetivo
+            triploEntries.add(new TriploEntry(target, tempVar, "="));
+        } else {
+            // Asignación simple
             triploEntries.add(new TriploEntry("T1", expression, "="));
-            
-            // Asignar variable temporal al objetivo
-            triploEntries.add(new TriploEntry(target, "T1", "="));
-            
-            return;
-        }
-        
-        // Expresión aritmética
-        String operator = "";
-        if (expression.contains("+")) operator = "+";
-        else if (expression.contains("-")) operator = "-";
-        else if (expression.contains("*")) operator = "*";
-        else if (expression.contains("/")) operator = "/";
-        
-        if (!operator.isEmpty()) {
-            String[] operands = expression.split("\\" + operator);
-            String left = operands[0].trim();
-            String right = operands[1].trim();
-            
-            // Utilizar T1 para operaciones aritméticas
-            triploEntries.add(new TriploEntry("T1", left, "="));
-            triploEntries.add(new TriploEntry("T1", right, operator));
             triploEntries.add(new TriploEntry(target, "T1", "="));
         }
     }
